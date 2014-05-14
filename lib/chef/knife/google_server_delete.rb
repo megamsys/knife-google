@@ -81,16 +81,28 @@ class Chef
             msg_pair("Public IP Address", public_ips(instance).join(','))
             msg_pair("Private IP Address", private_ips(instance).join(','))
             puts "\n"
+            
             ui.warn("Persistent disks attached to this instance are not deleted with this operation")
             ui.confirm("Do you really want to delete server '#{selflink2name(zone)}:#{instance.name}'")
             client.instances.delete(:instance=>instance.name, :zone=>selflink2name(zone))
             ui.warn("Deleted server '#{selflink2name(zone)}:#{instance.name}'")
             if config[:purge]
+              #client.disks.get(:zone=>instance.zone, :disk=>instance.name)
+              #client.disks.delete(:zone=>instance.zone, :disk=>instance.name)
+              #ui.warn("Disk '#{instance.zone}:#{instance.name}' deleted")
               destroy_item(Chef::Node, instance.name, "node")
               destroy_item(Chef::ApiClient, instance.name, "client")
             else
               ui.warn("Corresponding node and client for the #{instance.name} server were not deleted and remain registered with the Chef Server")
             end
+            @instan = client.instances.get(:name=>instance_name, :zone=>selflink2name(zone))
+            until @instan.status == "TERMINATED"
+          	sleep 3
+          	@instan = client.instances.get(:name=>instance_name, :zone=>selflink2name(zone))
+            end
+            sleep 3
+            client.disks.delete(:zone=>selflink2name(zone), :disk=>instance_name)
+            ui.warn("Deleted DISK '#{selflink2name(zone)}:#{instance.name}'")
           rescue
             ui.error("Could not locate server '#{selflink2name(zone)}:#{instance_name}'.")
           end

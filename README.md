@@ -49,16 +49,16 @@ will first need to authorize its use of the Google Compute Engine API.
 Authorization to use any of Google's Cloud service API's utilizes the
 [OAuth 2.0](https://developers.google.com/accounts/docs/OAuth2) standard.
 Once your project has been created, log in to your Google Account and visit the
-[API Console](http://code.google.com/apis/console) and follow the "API Access"
-menu.  Create a new "Client ID" and specify the
-[Installed Application](https://developers.google.com/accounts/docs/OAuth2#installed)
-Application type with sub-type "Other".  These actions will generate a new
-"Client ID", "Client secret", and "Redirect URI's".
+[API Console](http://code.google.com/apis/console) and follow the "APIs & auth"
+menu.  Select "Credentials".  Under the "OAuth" section, select "Create New
+Client ID".  Specify the [Installed Application](https://developers.google.com/accounts/docs/OAuth2#installed)
+Application type with sub-type "Other", then "Create Client ID".  These
+actions will generate a new "Client ID", "Client secret", and "Redirect URI's".
 
-This knife plugin includes a 'setup' sub-command that requires you to supply
-the client ID and secret in order to obtain an "authorization token".  You
-will only need to run this command one time and the plugin will record your
-credential information and tokens for future API calls.
+This knife plugin includes a 'setup' sub-command that requires you to
+supply the client ID and secret in order to obtain an "authorization
+token". You will only need to run this command one time and the plugin
+will record your credential information and tokens for future API calls.
 
 ## Installation
 
@@ -99,11 +99,11 @@ with root/Administrator privileges.
 
 For initial setup, you must first have created your Google Cloud Platform
 project, enabled Google Compute Engine, and set up the Client ID described
-above.  Run the 'setup' sub-command and supply the Project ID (not your
-project name or number), the Client ID, client secret, and authorization
-tokens when prompted.  It will also prompt you to open a URL in a browser.
-Make sure sure the you are logged in with the Google account associated
-with the project and client id/secrete in order to authorize the plugin.
+above.  Run the 'setup' sub-command and supply the Project ID, the Client
+ID, Client secret, and authorization tokens when prompted. It will also
+prompt you to open a URL in a browser. Make sure sure the you are logged
+in with the Google account associated with the project and client
+id/secrete in order to authorize the plugin.
 
   ```sh
   knife google setup
@@ -148,7 +148,7 @@ Some usage examples follow:
   $ knife google zone list
 
   # List all servers (including those that may not be managed by Chef)
-  $ knife google server list -Z us-central2-a
+  $ knife google server list -Z us-central1-a
 
   # Create a server
   $ knife google server create www1 -m n1-standard-1 -I debian-7-wheezy-v20131120 -Z us-central1-a -i ~/.ssh/id_rsa -x jdoe
@@ -157,7 +157,7 @@ Some usage examples follow:
   $ knife google server create www1 -m n1-standard-1 -I debian-7-wheezy-v20131120 -Z us-central1-a -i ~/.ssh/id_rsa -x jdoe --gce-service-account-scopes https://www.googleapis.com/auth/userinfo.email,https://www.googleapis.com/auth/compute,https://www.googleapis.com/auth/devstorage.full_control
 
   # Delete a server (along with Chef node and API client via --purge)
-  $ knife google server delete www1 --purge -Z us-central2-a
+  $ knife google server delete www1 --purge -Z us-central1-a
   ```
 
 For a full list of commands, run `knife google` without additional arguments:
@@ -243,7 +243,6 @@ The output for `knife google zone list` should look similar to:
   europe-west1-b  up      -            2014-03-15 12:00:00 -0700 to 2014-03-30 12:00:00 -0700
   us-central1-a   up      -            -
   us-central1-b   up      -            -
-  us-central2-a   up      -            2013-12-31 12:00:00 -0800 to 2014-07-01 12:00:00 -0700
   ```
 
 ### knife google region list
@@ -285,10 +284,9 @@ each resource.
 The output for `knife google project list -L` should look similar to:
 
   ```
-  name          status  deprecation  cpus  disks-total-gb  in-use-addresses  static-addresses
-  europe-west1  up      -            0     0               0                 0
-  us-central1   up      -            100   1000            10                1
-  us-central2   up      -            0     0               0                 0
+  name        snapshots  networks  firewalls  images  routes forwarding-rules  target-pools  health-checks
+  chef-test1  0/1000     1/5       3/100      0/100   2/100  0/50              0/50          0/50
+  chef-test2  1/1000     2/5       3/100      1/100   2/100  0/50              0/50          0/50
   ```
 
 ### knife google server create
@@ -395,6 +393,18 @@ Standard rake commands for building, installing, testing, and uninstalling the m
   # Uninstall
   $ rake uninstall
   ```
+
+## Versioning and Release Protocol
+
+Knife-google is released by the maintainer of this source repository to the gem
+repository at [RubyGems](https://rubygems.org). Releases are versioned
+according to [SemVer](http://semver.org) as much as possible, with a specific
+provision for GCE API changes:
+
+* When the implementation of knife-google switches to a new GCE API revision,
+  the minor version **MUST** be incremented.
+
+The version number of the release is simply the gem version. All releases to RubyGems **MUST** be tagged in git with the version number of the release.
 
 ## Contributing
   * See [CONTRIB.md](https://github.com/opscode/knife-google/blob/master/CONTRIB.md)
